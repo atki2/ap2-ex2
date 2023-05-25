@@ -1,5 +1,4 @@
 import './csss/login.css'
-import welcome from './pictures/welcome.png'
 import React, { useState } from 'react';
 import { useNavigate } from 'react-router-dom';
 import { serverGetToken } from './operations';

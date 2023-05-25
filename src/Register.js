@@ -1,10 +1,8 @@
 import './csss/register.css'
 
-import grass from './pictures/grass.webp'
 import empty from './pictures/empty.png'
-import React, { useEffect } from 'react';
+import React from 'react';
 import { useNavigate } from 'react-router-dom';
-import { addUser, isRegistered } from './registers';
 import { useState } from 'react';
 import { serverGetToken, serverRegisterAccount } from './operations';
 const registers = [];
