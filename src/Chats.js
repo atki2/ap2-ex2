@@ -4,14 +4,9 @@ import CurrentChat from './currentChat';
 import MessageItem from './messageItem'
 import ContactItem from './ContactItem';
 import addcontact from './pictures/addcontact.png'
-import { contactExists } from './contacts';
 import React, { useEffect } from 'react';
-import { addMessage } from './messages';
-import { getMessages } from './messages';
 import { useLocation } from 'react-router-dom';
 import { useNavigate } from 'react-router-dom';
-import { addContact, getContacts, changeContact } from './contacts';
-import { getDisplayName, getProfilePhoto, isRegistered } from './registers';
 import { useState } from 'react';
 import { serverAddChat, serverGetContactList, serverGetCserverGetContactList, serverGetMessages, serverGetToken, serverRegisterAccount, serverSendMessage } from './operations';
 import empty from './pictures/empty.png'
