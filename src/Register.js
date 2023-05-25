@@ -6,6 +6,7 @@ import React, { useEffect } from 'react';
 import { useNavigate } from 'react-router-dom';
 import { addUser, isRegistered } from './registers';
 import { useState } from 'react';
+import { serverGetToken, serverRegisterAccount } from './operations';
 const registers = [];
 function Register() {
   const [errorMsg, setErrorMsg] = useState("");
@@ -93,7 +94,7 @@ function Register() {
     return false;
   }
 
-  const registerAddUser = function () {
+  const registerAddUser = async function () {
     const username = document.getElementById('username');
     const password = document.getElementById('password');
     const displayName = document.getElementById('display');
@@ -118,18 +119,19 @@ function Register() {
       return;
     }
 
-    if (isRegistered(username.value)) {
-      myAlert("Invalid username\nusername already taken");
-      return;
+    const success = await serverRegisterAccount(username.value, password.value, displayName.value, profilePhoto.value)
+    if (!success) {
+      myAlert("username is taken")
+      return
     }
 
-
-    addUser(username.value, password.value, displayName.value, { imageUrl });
+    const token = await serverGetToken(username.value, password.value)
     navigate("/chats", {
       state: {
         username: username.value,
         displayName: displayName.value,
-        picture: { imageUrl }
+        picture: { imageUrl },
+        token: token
       }
     });
   }

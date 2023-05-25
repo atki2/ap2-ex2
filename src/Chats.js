@@ -13,12 +13,13 @@ import { useNavigate } from 'react-router-dom';
 import { addContact, getContacts, changeContact } from './contacts';
 import { getDisplayName, getProfilePhoto, isRegistered } from './registers';
 import { useState } from 'react';
+import { serverAddChat, serverGetContactList, serverGetCserverGetContactList, serverGetMessages, serverGetToken, serverRegisterAccount, serverSendMessage } from './operations';
 import empty from './pictures/empty.png'
 
 var selectContact = false;
 var currentContacts = [];
 var currentMessages = [];
-function Chats({ username, displayName, picture }) {
+function Chats({ username, displayName, picture, token }) {
   const [errorMsg, setErrorMsg] = useState("");
   const [isClose, setIsClose] = useState(true);
 
@@ -40,10 +41,6 @@ function Chats({ username, displayName, picture }) {
 
 
   // var { username, displayName, picture } = location.state;
-  currentContacts = getContacts(username);
-  const contactList = currentContacts.map((contact, key) => {
-    return <button className="list-group-item btn" onClick={() => changeChat(contact)}><ContactItem {...contact} key={key} /></button>;
-  });
 
   const messageList = currentMessages.map((message, key) => {
     return <MessageItem {...message} key={key} />
@@ -53,114 +50,104 @@ function Chats({ username, displayName, picture }) {
   const [currentChatImageUrl, setImageUrl] = useState(empty);
   const [currentChatUsername, setCurrentChatUsername] = useState('');
   const [currentMessagesList, setCurrentMessagesList] = useState(messageList);
-  const [dinamicContactList, setDinamicContactList] = useState(contactList);
+  const [dinamicContactList, setDinamicContactList] = useState([]);
+  const [currentChatId, setCurrentChatId] = useState(0)
+  useEffect(() => {
+    // console.log("in use effect")
+    const initContacts = async () => {
+      currentContacts = await serverGetContactList(token);
+      const contactList = currentContacts.map((contact, key) => {
+        return <button className="list-group-item btn" onClick={() => changeChat(contact)}><ContactItem {...contact} key={key} /></button>;
+      });
 
-  const changeChat = function (contact) {
+      // console.log("whaaaaaaaaaa")
+      // console.log("contact listssssssssssssssssssssss: " + JSON.stringify(contactList))
+      setDinamicContactList(contactList)
+    };
+
+    initContacts();
+  }, []);
+
+
+  // const token1 = serverGetToken("a", "a");
+  // console.log("token:" + token1)
+  // serverSendMessage(token, 2, "lastMsg")
+  // console.log("resulttt: " + JSON.stringify(serverGetMessages(token, 2, "a")));
+  // serverAddChat(token, "a")
+  // serverRegisterAccount("ytytytytyffffffffggsssssssssss", "iojsijosioj", "sksks", "pic")
+
+  const changeChat = async function (contact) {
     selectContact = true;
     setDisplayName(contact.displayName);
     setImageUrl(contact.image);
-    setCurrentChatUsername(contact.userName);
-    currentMessages = getMessages(username, contact.userName);
+    setCurrentChatUsername(contact.username);
+    setCurrentChatId(contact.id)
+    currentMessages = await serverGetMessages(token, contact.id, contact.username);
+    // console.log(JSON.stringify(currentMessages))
     setCurrentMessagesList(currentMessages.map((message, key) => {
       return <MessageItem {...message} key={key} />
     }));
+    // console.log(currentMessagesList)
   }
 
-async function getToken(username, password) {
-    const data = {
-      "username": username,
-      "password": password,
-    }
-    const res = await fetch('http://localhost:5000/api/Tokens', {
-      'method': 'post',
-      'headers': {
-        'Content-Type': 'application/json',
-      },
-      'body': JSON.stringify(data)
-    })
-    console.log("token:: " + res)
-    if (res.ok) {
-      const token = await res.text();
-      return token;
-    } else {
-      return "";
-    }
-  }
-
-  async function requestContactList(token) {
-    const res = await fetch('http://localhost:5000/api/Chats', {
-      'method': 'get',
-      'headers': {
-        'Content-Type': 'application/json',
-        'authorization': 'bearer ' + token
-      }
-    }
-    )
-    // Show the server's response
-    console.log(res);
-    if (res.ok) {
-      const result = await res.text();
-      return result
-    } else {
-      return "";
-    }
-  }
-
-  async function contactListServer() {
-    const token = await getToken("x", "x");
-    const result = requestContactList(token);
-    console.log("result:" + result);
-    return contactList;
-  }
-
-  const sendMessage = function () {
+  const sendMessage = async function () {
     if (!selectContact) {
       return;
     }
-    const now = new Date();
-    const hour = now.getHours().toString().padStart(2, '0');
-    const minute = now.getMinutes().toString().padStart(2, '0');
-    const currentTime = `${hour}:${minute}`;
     const message_input = document.getElementById('textBox');
-    //message user sent
-    addMessage(username, currentChatUsername, message_input.value.trim(), currentTime, "me");
-    // message other user recieved
-    addMessage(currentChatUsername, username, message_input.value.trim(), currentTime, "other");
-    currentMessages = getMessages(username, currentChatUsername);
-    console.log(currentMessages);
+    if (await serverSendMessage(token, currentChatId, message_input.value.trim()) === false) {
+      console.log("error")
+    }
+    // //message user sent
+    // addMessage(username, currentChatUsername, message_input.value.trim(), currentTime, "me");
+    // // message other user recieved
+    // addMessage(currentChatUsername, username, message_input.value.trim(), currentTime, "other");
+    // console.log("currentChatUsername: " + currentChatUsername)
+    currentMessages = await serverGetMessages(token, currentChatId, currentChatUsername);
+    // console.log("currentMessages: " + JSON.stringify(currentMessages))
     setCurrentMessagesList(currentMessages.map((message, key) => {
       return <MessageItem {...message} key={key} />
     }));
-    const day = now.getDate().toString().padStart(2, '0');
-    const month = (now.getMonth() + 1).toString().padStart(2, '0');
-    const year = now.getFullYear().toString();
-    const date = `${day}/${month}/${year}`;
-    //change contact date and hour
-    const changeDateContact = { userName: currentChatUsername, displayName: currentChatDisplayName, image: currentChatImageUrl, date: date, hour: currentTime };
-    changeContact(username, currentChatUsername, changeDateContact);
-    //make sender the contact of the reciever
-    addContact(currentChatUsername, username, displayName, picture.imageUrl, date, currentTime);
-    currentContacts = getContacts(username);
-    setDinamicContactList(currentContacts.map((contact, key) => {
+    // console.log(currentMessagesList)
+    currentContacts = await serverGetContactList(token);
+    const contactList = currentContacts.map((contact, key) => {
       return <button className="list-group-item btn" onClick={() => changeChat(contact)}><ContactItem {...contact} key={key} /></button>;
-    }));
+    });
+
+    setDinamicContactList(contactList)
+
+    // console.log(currentMessages);
+    // setCurrentMessagesList(currentMessages.map((message, key) => {
+    //   return <MessageItem {...message} key={key} />
+    // }));
+    // const day = now.getDate().toString().padStart(2, '0');
+    // const month = (now.getMonth() + 1).toString().padStart(2, '0');
+    // const year = now.getFullYear().toString();
+    // const date = `${day}/${month}/${year}`;
+    // //change contact date and hour
+    // const changeDateContact = { userName: currentChatUsername, displayName: currentChatDisplayName, image: currentChatImageUrl, date: date, hour: currentTime };
+    // changeContact(username, currentChatUsername, changeDateContact);
+    // //make sender the contact of the reciever
+    // addContact(currentChatUsername, username, displayName, picture.imageUrl, date, currentTime);
+    // currentContacts = getContacts(username);
+    // setDinamicContactList(currentContacts.map((contact, key) => {
+    //   return <button className="list-group-item btn" onClick={() => changeChat(contact)}><ContactItem {...contact} key={key} /></button>;
+    // }));
   }
 
-  const chatsAddContact = function () {
+  const chatsAddContact = async function () {
     const contact_input = document.getElementById('newContact');
     const contactUsername = contact_input.value;
-    if (!isRegistered(contactUsername)) {
-      myAlert("This contact is not registered");
+    console.log(contactUsername)
+    const errorMsg = await serverAddChat(token, contactUsername)
+    if (!(errorMsg === "")) {
+      myAlert(errorMsg)
       return;
     }
 
-    if (contactExists(username, contactUsername)) {
-      myAlert("Contact already added");
-      return;
-    }
     setIsClose(true);
-    addContact(username, contactUsername, getDisplayName(contactUsername), getProfilePhoto(contactUsername).imageUrl, 'No last date', 'No last hour');
-    currentContacts = getContacts(username);
+    // addContact(username, contactUsername, getDisplayName(contactUsername), getProfilePhoto(contactUsername).imageUrl, 'No last date', 'No last hour');
+    currentContacts = await serverGetContactList(token);
     setDinamicContactList(currentContacts.map((contact, key) => {
       return <button className="list-group-item btn" onClick={() => changeChat(contact)}><ContactItem {...contact} key={key} /></button>;
     }));
@@ -202,7 +189,7 @@ async function getToken(username, password) {
               className="chats list-group list-group-flush scrollbar scrollbar-blue"
               style={{ position: "relative", overflowY: "scroll", height: 400 }}
             >
-              {contactListServer()}
+              {dinamicContactList}
             </div>
           </div>
           <div className="chats col-8 scrollbar scrollbar-green" id="messages">

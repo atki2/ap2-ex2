@@ -1,8 +1,9 @@
 import './csss/login.css'
 import welcome from './pictures/welcome.png'
 import React, { useState } from 'react';
-import { isRegistered, getDisplayName, getPassword, getProfilePhoto } from './registers';
 import { useNavigate } from 'react-router-dom';
+import { serverGetToken } from './operations';
+import { serverGetAcountInfo } from './operations'
 
 function Login() {
   const [errorMsg, setErrorMsg] = useState("");
@@ -21,50 +22,37 @@ function Login() {
     navigate("/register");
   }
 
-  const validateUsername = function () {
+  const validateUsernameAndPassword = async function() {
     const usernameInput = document.getElementById("username");
     const username = usernameInput.value;
-    if (!isRegistered(username)) {
-      return false;
-    }
-
-    return true;
-  }
-
-  const validatePassword = function () {
     const passwordInput = document.getElementById("password");
     const password = passwordInput.value;
-    console.log(password);
-    const usernameInput = document.getElementById("username");
-    const username = usernameInput.value;
-    if (!(getPassword(username) === password)) {
-      return false;
+    const token =  await serverGetToken(username, password)
+    if (token === "") {
+      myAlert("Incorrect username and/or password")
+      return ""
     }
 
-    return true;
+    return token
   }
 
-  const login = function () {
+  const login = async function () {
 
-    if (!validateUsername()) {
-      myAlert("You are not registered");
-      return false;
+    const token = await validateUsernameAndPassword()
+    if (token === "") {
+      return;
     }
 
-
-    if (!validatePassword()) {
-      myAlert("Wrong password");
-      return false;
-    }
-
+    console.log(token)
     const usernameInput = document.getElementById("username");
-    const username = usernameInput.value;
-
+    const {username, displayName, profilePic} = await serverGetAcountInfo(token, usernameInput.value)
+    console.log("info: " + username + " " + displayName + " " + profilePic)
     navigate("/chats", {
       state: {
         username: username,
-        displayName: getDisplayName(username),
-        picture: (getProfilePhoto(username))
+        displayName: displayName,
+        picture: profilePic,
+        token: token
       }
     });
   }

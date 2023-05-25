@@ -10,7 +10,7 @@ function ContactItem(contact) {
         />
         {contact.displayName}
       </span>
-      <small className="text-muted float-right">{contact.date}, {contact.hour}</small>
+      <small className="text-muted float-right">{contact.id} {contact.date}, {contact.hour}, {contact.lastMessage}</small>
     </div>
   );
 }
