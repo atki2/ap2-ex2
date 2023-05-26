@@ -8,8 +8,8 @@ function ChatsGateway(){
         return(<Login />);
     }
     
-    const { username, displayName, picture } = location.state;
-    return <Chats username={username} displayName={displayName} picture={picture} />;
+    const { username, displayName, picture, token } = location.state;
+    return <Chats username={username} displayName={displayName} picture={picture} token={token}/>;
 }
 
 export default ChatsGateway;
