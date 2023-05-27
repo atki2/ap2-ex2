@@ -34,11 +34,6 @@ function Register() {
   const moveToLogin = function () {
     navigate("/");
   }
-  const userNameTaken = function () {
-    const username = document.getElementById('username');
-    const user = registers.find(user => user.username === username.value);
-    return user ? false : true;
-  }
 
   const handleUser = function () {
     const username = document.getElementById('username');
@@ -117,21 +112,48 @@ function Register() {
       return;
     }
 
-    const success = await serverRegisterAccount(username.value, password.value, displayName.value, profilePhoto.value)
-    if (!success) {
-      myAlert("username is taken")
+    console.log("profile photo: " + profilePhoto.value)
+    if (profilePhoto.files.length <= 0) {
+      myAlert("select profile photo")
       return
     }
+    const reader = new FileReader();
+    reader.onload = async function (event) {
+      const img = new Image();
+      img.onload = async function () {
+        const canvas = document.createElement("canvas");
+        const ctx = canvas.getContext("2d");
+        canvas.width = 30;
+        canvas.height = 25;
+        ctx.drawImage(img, 0, 0, 30, 25);
+        const resizedCanvas = document.createElement("canvas");
+        resizedCanvas.width = canvas.width;
+        resizedCanvas.height = canvas.height;
+        const resizedCtx = resizedCanvas.getContext("2d");
+        resizedCtx.drawImage(canvas, 0, 0);
+        const resizedImage = resizedCanvas.toDataURL(); // Get the resized image as base64 data URL
+        const success = await serverRegisterAccount(username.value, password.value, displayName.value, resizedImage.split(',')[1])
+        if (!success) {
+          myAlert("username is taken")
+          return
+        }
 
-    const token = await serverGetToken(username.value, password.value)
-    navigate("/chats", {
-      state: {
-        username: username.value,
-        displayName: displayName.value,
-        picture: { imageUrl },
-        token: token
+        const token = await serverGetToken(username.value, password.value)
+        navigate("/chats", {
+          state: {
+            username: username.value,
+            displayName: displayName.value,
+            picture: resizedImage.split(',')[1],
+            token: token
+          }
+        });
       }
-    });
+
+      img.src = event.target.result;
+    }
+
+    const file = profilePhoto.files[0]; // Get the selected file
+    reader.readAsDataURL(file); // Read the file as Data URL (base64 encoded
   }
 
   return (
