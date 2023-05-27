@@ -2,7 +2,7 @@ function CurrentChat({ image, name }) {
   return (
     <div>
       <img
-        src={image}
+        src={"data:image/png;base64, " + image}
         width={30}
         height={25}
         className="empty rounded-circle profilePhoto"

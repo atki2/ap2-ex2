@@ -15,6 +15,7 @@ var selectContact = false;
 var currentContacts = [];
 var currentMessages = [];
 function Chats({ username, displayName, picture, token }) {
+  console.log("base 64 smaller: " + picture)
   const [errorMsg, setErrorMsg] = useState("");
   const [isClose, setIsClose] = useState(true);
 
@@ -41,7 +42,7 @@ function Chats({ username, displayName, picture, token }) {
   });
 
   const [currentChatDisplayName, setDisplayName] = useState("Select contact to chat with");
-  const [currentChatImageUrl, setImageUrl] = useState(empty);
+  const [currentChatImageUrl, setCurrentChatImageUrl] = useState(empty);
   const [currentChatUsername, setCurrentChatUsername] = useState('');
   const [currentMessagesList, setCurrentMessagesList] = useState(messageList);
   const [dinamicContactList, setDinamicContactList] = useState([]);
@@ -62,7 +63,9 @@ function Chats({ username, displayName, picture, token }) {
   const changeChat = async function (contact) {
     selectContact = true;
     setDisplayName(contact.displayName);
-    setImageUrl(contact.image);
+    console.log("contact image: " + contact.image)
+    setCurrentChatImageUrl(contact.image);
+    console.log("contact image: " + currentChatImageUrl)
     setCurrentChatUsername(contact.username);
     setCurrentChatId(contact.id)
     currentMessages = await serverGetMessages(token, contact.id, contact.username);
@@ -122,7 +125,7 @@ function Chats({ username, displayName, picture, token }) {
           <div className="chats col-4" id="me">
             <div className="chats button-container name">
               <div>
-                <ChatOwner image={picture.imageUrl} name={displayName} />
+                <ChatOwner image={picture} name={displayName} />
                 <button
                   className="chats btn btn-sm btn-primary empty rounded-circle"
                   data-toggle="modal"
