@@ -3,7 +3,7 @@ export async function serverGetToken(username, password) {
         username: username,
         password: password
     }
-    const res = await fetch('http://localhost:5000/api/Tokens', {
+    const res = await fetch('http://localhost:5001/api/Tokens', {
         'method': 'post',
         'headers': {
             'Content-Type': 'application/json',
@@ -19,7 +19,7 @@ export async function serverGetToken(username, password) {
 }
 
 export async function serverGetContactList(token) {
-    const res = await fetch('http://localhost:5000/api/Chats', {
+    const res = await fetch('http://localhost:5001/api/Chats', {
         'method': 'get',
         'headers': {
             'Content-Type': 'application/json',
@@ -33,25 +33,20 @@ export async function serverGetContactList(token) {
     }
 
     const body = await res.text()
-    // console.log(body);
     const json_object = JSON.parse(body)
-    // console.log("json: " + JSON.stringify(json_object))
     const result = json_object.map((item) => {
         const id = item.id;
         const { username, displayName, profilePic } = item.user;
         var { created, content } = { created: "", content: "now!" };
         var date = "empty chat"
         var hour = "click the button to chat"
+        var lastMessageView = "now!"
         if (item.lastMessage != null) {
             ({ created, content } = item.lastMessage);
-            // console.log(created.substring(0, 10))
             date = created.substring(0, 10)
-            // console.log(created.substring(11, 16))
             hour = created.substring(11, 16)
+            lastMessageView = content.length > 15? (content.substring(0,15) + "..."): content
         }
-
-        // console.log(displayName)
-        // console.log(date.toISOString().split("T")[0])
         return {
             username,
             id: id,
@@ -59,16 +54,15 @@ export async function serverGetContactList(token) {
             image: profilePic,
             date: date,
             hour: hour,
-            lastMessage: content
+            lastMessage: lastMessageView
         };
     });
 
-    // console.log(JSON.stringify(result))
     return result.reverse()
 }
 
 export async function serverGetMessages(token, id, username) {
-    const res = await fetch('http://localhost:5000/api/Chats/' + id + '/Messages', {
+    const res = await fetch('http://localhost:5001/api/Chats/' + id + '/Messages', {
         'method': 'get',
         'headers': {
             'Content-Type': 'application/json',
@@ -81,17 +75,13 @@ export async function serverGetMessages(token, id, username) {
         return [];
     }
 
-    // console.log(res)
     const body = await res.text()
-    // console.log(body)
     const json_object = JSON.parse(body)
     const reversedMessages = json_object.reverse()
     const result = reversedMessages.map((item) => {
         const date = new Date(item.created);
         const time = date.toISOString().split("T")[0] + ' ' + date.toLocaleTimeString([], { hour: "2-digit", minute: "2-digit" });
         var who = "me"
-        // console.log("item username: " + item.sender.username)
-        // console.log("username: " + username)
         if (item.sender.username === username) {
             who = "other"
         }
@@ -109,7 +99,7 @@ export async function serverSendMessage(token, id, msg) {
     const data = {
         msg: msg
     }
-    const res = await fetch('http://localhost:5000/api/Chats/' + id + '/Messages', {
+    const res = await fetch('http://localhost:5001/api/Chats/' + id + '/Messages', {
         'method': 'post',
         'headers': {
             'Content-Type': 'application/json',
@@ -125,7 +115,6 @@ export async function serverSendMessage(token, id, msg) {
         return false
     }
 
-    // console.log(await res.text())
     return true
 }
 
@@ -133,7 +122,7 @@ export async function serverAddChat(token, username) {
     const data = {
         username: username
     }
-    const res = await fetch('http://localhost:5000/api/Chats', {
+    const res = await fetch('http://localhost:5001/api/Chats', {
         'method': 'post',
         'headers': {
             'Content-Type': 'application/json',
@@ -148,7 +137,6 @@ export async function serverAddChat(token, username) {
         return await res.text()
     }
 
-    // console.log("good")
     return ""
 }
 
@@ -159,7 +147,7 @@ export async function serverRegisterAccount(username, password, displayName, pro
         displayName: displayName,
         profilePic: profilePic
     }
-    const res = await fetch('http://localhost:5000/api/Users', {
+    const res = await fetch('http://localhost:5001/api/Users', {
         'method': 'post',
         'headers': {
             'Content-Type': 'application/json',
@@ -168,17 +156,13 @@ export async function serverRegisterAccount(username, password, displayName, pro
     })
 
     if (res.ok) {
-        console.log("new account!")
-        console.log(JSON.stringify(await res.text()))
         return true;
     }
-
-    console.log("already registered")
     return false;
 }
 
 export async function serverGetAcountInfo(token, username) {
-    const res = await fetch('http://localhost:5000/api/Users/' + username, {
+    const res = await fetch('http://localhost:5001/api/Users/' + username, {
         'method': 'get',
         'headers': {
             'Content-Type': 'application/json',

@@ -10,12 +10,13 @@ import { useNavigate } from 'react-router-dom';
 import { useState } from 'react';
 import { serverAddChat, serverGetContactList, serverGetCserverGetContactList, serverGetMessages, serverGetToken, serverRegisterAccount, serverSendMessage } from './operations';
 import empty from './pictures/empty.png'
+import io from 'socket.io-client';
+
 
 var selectContact = false;
 var currentContacts = [];
 var currentMessages = [];
 function Chats({ username, displayName, picture, token }) {
-  console.log("base 64 smaller: " + picture)
   const [errorMsg, setErrorMsg] = useState("");
   const [isClose, setIsClose] = useState(true);
 
@@ -63,13 +64,10 @@ function Chats({ username, displayName, picture, token }) {
   const changeChat = async function (contact) {
     selectContact = true;
     setDisplayName(contact.displayName);
-    console.log("contact image: " + contact.image)
     setCurrentChatImageUrl(contact.image);
-    console.log("contact image: " + currentChatImageUrl)
     setCurrentChatUsername(contact.username);
     setCurrentChatId(contact.id)
     currentMessages = await serverGetMessages(token, contact.id, contact.username);
-    // console.log(JSON.stringify(currentMessages))
     setCurrentMessagesList(currentMessages.map((message, key) => {
       return <MessageItem {...message} key={key} />
     }));
@@ -98,7 +96,6 @@ function Chats({ username, displayName, picture, token }) {
   const chatsAddContact = async function () {
     const contact_input = document.getElementById('newContact');
     const contactUsername = contact_input.value;
-    console.log(contactUsername)
     const errorMsg = await serverAddChat(token, contactUsername)
     if (!(errorMsg === "")) {
       myAlert(errorMsg)
@@ -111,6 +108,23 @@ function Chats({ username, displayName, picture, token }) {
       return <button className="list-group-item btn" onClick={() => changeChat(contact)}><ContactItem {...contact} key={key} /></button>;
     }));
   }
+
+  useEffect(() => {
+    const socket = io('http://localhost:5001')
+
+    socket.on('connect', () => {
+      console.log('Connected to socket server');
+    });
+
+    socket.on('disconnect', () => {
+      console.log('Disconnected from socket server');
+    });
+
+    // Clean up the socket connection when the component unmounts
+    return () => {
+      socket.disconnect();
+    };
+  }, [username]);
 
   return (
     <div id="chats">
