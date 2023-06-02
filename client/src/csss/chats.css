@@ -1,0 +1,143 @@
+#chats {
+  position: absolute;
+  width: 100%;
+  height: 100%;
+  background-image: url(../pictures/background.jpg), url(../pictures/gray.png);
+  background-position: top, bottom;
+  background-repeat: no-repeat, repeat;
+  background-size: 100vmax 150px, 100vmax 100vmax;
+}
+
+#chatBox {
+  background-color: rgb(192, 188, 188);
+  margin-top: 2vw;
+  border-radius: 10px;
+  z-index: 20;
+}
+
+#me {
+  background-color: rgb(192, 188, 188);
+}
+
+.chats.col-8 {
+  background-color: rgb(192, 188, 188);
+}
+
+.chats.col-4 {
+  background-color: rgb(225, 227, 228);
+}
+
+.chats.empty {
+  background-color: transparent;
+  border-color: transparent;
+  box-shadow: none;
+}
+
+#addContact {
+  float: right;
+}
+
+
+.scrollbar::-webkit-scrollbar {
+  width: 10px;
+  background-color: white;
+}
+
+.scrollbar-green::-webkit-scrollbar-thumb {
+  border-radius: 10px;
+  -webkit-box-shadow: inset 0 0 6px rgba(0, 0, 0, 0.1);
+  background-image: -webkit-linear-gradient(330deg, #93fb98 0%, #6ff557 100%);
+  background-image: linear-gradient(120deg, #93fbbb 0%, #22c630 100%);
+  border-radius: 0 !important;
+}
+
+.scrollbar-blue::-webkit-scrollbar-thumb {
+  border-radius: 10px;
+  -webkit-box-shadow: inset 0 0 6px rgba(0, 0, 0, 0.1);
+  background-image: -webkit-linear-gradient(330deg, #93d3fb 0%, #577cf5 100%);
+  background-image: linear-gradient(120deg, #939cfb 0%, #4b22c6 100%);
+  border-radius: 0 !important;
+}
+
+.contact-friend {
+  margin-left: 0px;
+}
+
+span {
+  margin-left: 0px;
+}
+
+.name {
+  font-family: 'Montserrat';
+  color: rgb(129, 52, 52);
+}
+
+.contact {
+  width: 100%;
+  height: 100%;
+  border-radius: 0px;
+}
+
+#textBox {
+  float: right;
+  width: 84.5%;
+  border-radius: 0px 5px 5px 0px;
+}
+
+.profilePhoto {
+  border: 3px solid white;
+  background-clip: border-box;
+  box-shadow: 0 0 0 1px gray;
+}
+
+#sendButton {
+  margin-left: 0.5%;
+  float: right;
+  width: 15%;
+  border-radius: 5px 0px 0px 5px;
+}
+
+.text-muted {
+  color: black !important;
+  font-style: oblique;
+}
+
+#messages {
+  position: relative;
+  overflow-y: scroll;
+  height: 400px;
+  background-color: rgb(127, 224, 127);
+}
+
+.messageArea {
+  margin-top: 0.5%;
+  min-height: 10%;
+  width: 100%;
+  display: flex;
+  align-items: stretch;
+}
+
+
+.message {
+  width: auto;
+  text-align: left;
+  font-weight: normal;
+}
+
+.my {
+  margin-left: 1%;
+}
+
+.other {
+  margin-right: 1%;
+}
+
+.date {
+  float: right;
+  font-weight: normal;
+}
+
+.no-gutters {
+  padding-right: 0;
+  padding-left: 0;
+}

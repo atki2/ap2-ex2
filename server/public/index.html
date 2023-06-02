@@ -1,0 +1,24 @@
+<!DOCTYPE html>
+<html>
+<head>
+  <title>Create User</title>
+</head>
+<body>
+  <h1>Create User</h1>
+  <form action="/api/users" method="post">
+    <label for="name">Name:</label>
+    <input type="text" id="name" name="name" required>
+
+    <label for="password">Password:</label>
+    <input type="password" id="password" name="password" required>
+
+    <label for="displayName">Display Name:</label>
+    <input type="text" id="displayName" name="displayName" required>
+
+    <label for="profilePhoto">Profile Photo:</label>
+    <input type="text" id="profilePhoto" name="profilePhoto">
+
+    <button type="submit">Create User</button>
+  </form>
+</body>
+</html>
