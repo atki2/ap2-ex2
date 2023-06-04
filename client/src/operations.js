@@ -3,7 +3,7 @@ export async function serverGetToken(username, password) {
         username: username,
         password: password
     }
-    const res = await fetch('http://localhost:5001/api/Tokens', {
+    const res = await fetch('http://localhost:5000/api/Tokens', {
         'method': 'post',
         'headers': {
             'Content-Type': 'application/json',
@@ -19,7 +19,7 @@ export async function serverGetToken(username, password) {
 }
 
 export async function serverGetContactList(token) {
-    const res = await fetch('http://localhost:5001/api/Chats', {
+    const res = await fetch('http://localhost:5000/api/Chats', {
         'method': 'get',
         'headers': {
             'Content-Type': 'application/json',
@@ -62,7 +62,7 @@ export async function serverGetContactList(token) {
 }
 
 export async function serverGetMessages(token, id, username) {
-    const res = await fetch('http://localhost:5001/api/Chats/' + id + '/Messages', {
+    const res = await fetch('http://localhost:5000/api/Chats/' + id + '/Messages', {
         'method': 'get',
         'headers': {
             'Content-Type': 'application/json',
@@ -99,7 +99,7 @@ export async function serverSendMessage(token, id, msg) {
     const data = {
         msg: msg
     }
-    const res = await fetch('http://localhost:5001/api/Chats/' + id + '/Messages', {
+    const res = await fetch('http://localhost:5000/api/Chats/' + id + '/Messages', {
         'method': 'post',
         'headers': {
             'Content-Type': 'application/json',
@@ -122,7 +122,7 @@ export async function serverAddChat(token, username) {
     const data = {
         username: username
     }
-    const res = await fetch('http://localhost:5001/api/Chats', {
+    const res = await fetch('http://localhost:5000/api/Chats', {
         'method': 'post',
         'headers': {
             'Content-Type': 'application/json',
@@ -147,7 +147,7 @@ export async function serverRegisterAccount(username, password, displayName, pro
         displayName: displayName,
         profilePic: profilePic
     }
-    const res = await fetch('http://localhost:5001/api/Users', {
+    const res = await fetch('http://localhost:5000/api/Users', {
         'method': 'post',
         'headers': {
             'Content-Type': 'application/json',
@@ -162,7 +162,7 @@ export async function serverRegisterAccount(username, password, displayName, pro
 }
 
 export async function serverGetAcountInfo(token, username) {
-    const res = await fetch('http://localhost:5001/api/Users/' + username, {
+    const res = await fetch('http://localhost:5000/api/Users/' + username, {
         'method': 'get',
         'headers': {
             'Content-Type': 'application/json',
