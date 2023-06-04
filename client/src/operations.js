@@ -43,8 +43,12 @@ export async function serverGetContactList(token) {
         var lastMessageView = "now!"
         if (item.lastMessage != null) {
             ({ created, content } = item.lastMessage);
+            let hourMinus3 = created.substring(11, 13)
+            let num = parseInt(hourMinus3);
+            num = (num + 3) % 24;
+            const updatedHour = String(num) + created.substring(13, 16)
             date = created.substring(0, 10)
-            hour = created.substring(11, 16)
+            hour = updatedHour
             lastMessageView = content.length > 15? (content.substring(0,15) + "..."): content
         }
         return {
