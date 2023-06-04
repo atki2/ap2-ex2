@@ -42,10 +42,8 @@ function Login() {
       return;
     }
 
-    console.log(token)
     const usernameInput = document.getElementById("username");
     const {username, displayName, profilePic} = await serverGetAcountInfo(token, usernameInput.value)
-    console.log("info: " + username + " " + displayName + " " + profilePic)
     navigate("/chats", {
       state: {
         username: username,

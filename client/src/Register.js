@@ -112,7 +112,6 @@ function Register() {
       return;
     }
 
-    console.log("profile photo: " + profilePhoto.value)
     if (profilePhoto.files.length <= 0) {
       myAlert("select profile photo")
       return

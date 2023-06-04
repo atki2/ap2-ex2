@@ -10,12 +10,18 @@ import { useNavigate } from 'react-router-dom';
 import { useState } from 'react';
 import { serverAddChat, serverGetContactList, serverGetCserverGetContactList, serverGetMessages, serverGetToken, serverRegisterAccount, serverSendMessage } from './operations';
 import empty from './pictures/empty.png'
+import io from 'socket.io-client';
+
 
 var selectContact = false;
+var socket_connected = false;
 var currentContacts = [];
 var currentMessages = [];
+var currentChatId = ""
+
+
 function Chats({ username, displayName, picture, token }) {
-  console.log("base 64 smaller: " + picture)
+
   const [errorMsg, setErrorMsg] = useState("");
   const [isClose, setIsClose] = useState(true);
 
@@ -46,7 +52,6 @@ function Chats({ username, displayName, picture, token }) {
   const [currentChatUsername, setCurrentChatUsername] = useState('');
   const [currentMessagesList, setCurrentMessagesList] = useState(messageList);
   const [dinamicContactList, setDinamicContactList] = useState([]);
-  const [currentChatId, setCurrentChatId] = useState(0)
   useEffect(() => {
     const initContacts = async () => {
       currentContacts = await serverGetContactList(token);
@@ -63,16 +68,19 @@ function Chats({ username, displayName, picture, token }) {
   const changeChat = async function (contact) {
     selectContact = true;
     setDisplayName(contact.displayName);
-    console.log("contact image: " + contact.image)
     setCurrentChatImageUrl(contact.image);
-    console.log("contact image: " + currentChatImageUrl)
     setCurrentChatUsername(contact.username);
-    setCurrentChatId(contact.id)
+    currentChatId = contact.id
     currentMessages = await serverGetMessages(token, contact.id, contact.username);
-    // console.log(JSON.stringify(currentMessages))
     setCurrentMessagesList(currentMessages.map((message, key) => {
       return <MessageItem {...message} key={key} />
     }));
+    currentContacts = await serverGetContactList(token);
+    const contactList = currentContacts.map((contact, key) => {
+      return <button className="list-group-item btn" onClick={() => changeChat(contact)}><ContactItem {...contact} key={key} /></button>;
+    });
+
+    setDinamicContactList(contactList)
   }
 
   const sendMessage = async function () {
@@ -81,7 +89,7 @@ function Chats({ username, displayName, picture, token }) {
     }
     const message_input = document.getElementById('textBox');
     if (await serverSendMessage(token, currentChatId, message_input.value.trim()) === false) {
-      console.log("error")
+      myAlert("error")
     }
     currentMessages = await serverGetMessages(token, currentChatId, currentChatUsername);
     setCurrentMessagesList(currentMessages.map((message, key) => {
@@ -98,7 +106,6 @@ function Chats({ username, displayName, picture, token }) {
   const chatsAddContact = async function () {
     const contact_input = document.getElementById('newContact');
     const contactUsername = contact_input.value;
-    console.log(contactUsername)
     const errorMsg = await serverAddChat(token, contactUsername)
     if (!(errorMsg === "")) {
       myAlert(errorMsg)
@@ -111,6 +118,31 @@ function Chats({ username, displayName, picture, token }) {
       return <button className="list-group-item btn" onClick={() => changeChat(contact)}><ContactItem {...contact} key={key} /></button>;
     }));
   }
+
+  useEffect(() => {
+    const socket = io('http://localhost:5001')
+    socket.on('connect', () => {
+      console.log('Connected to socket server');
+      socket.emit('username', username);
+      socket.on('message', async ({ sender, id }) => {
+        currentContacts = await serverGetContactList(token);
+        const contactList = currentContacts.map((contact, key) => {
+          return <button className="list-group-item btn" onClick={() => changeChat(contact)}><ContactItem {...contact} key={key} /></button>;
+        });
+        setDinamicContactList(contactList)
+        if (id === currentChatId) {
+          currentMessages = await serverGetMessages(token, id, sender);
+          setCurrentMessagesList(currentMessages.map((message, key) => {
+            return <MessageItem {...message} key={key} />
+          }));
+        }
+      })
+      socket.on('disconnect', () => {
+        console.log('Disconnected from socket server');
+      });
+    });
+  })
+
 
   return (
     <div id="chats">
