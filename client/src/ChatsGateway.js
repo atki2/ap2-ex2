@@ -1,6 +1,6 @@
 import Chats from'./Chats'
 import Login from './Login'
-import { useLocation, useNavigate } from 'react-router-dom';
+import { useLocation } from 'react-router-dom';
 
 function ChatsGateway(){
     const location = useLocation();

@@ -19,7 +19,7 @@ function MessageItem(chat) {
       </div>
     </div>
 
-  if (chat.who == "me") {
+  if (chat.who === "me") {
     return (myMessage);
   }
 

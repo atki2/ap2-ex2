@@ -28,8 +28,9 @@ const chatSchema = new mongoose.Schema({
         required: true
       },
       created: {
-        type: String,
-        required: true
+        type: Date,
+        required: true,
+        default: Date.now
       },
       sender: {
         username: {

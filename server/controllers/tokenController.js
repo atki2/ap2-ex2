@@ -5,17 +5,25 @@ const key = "Some super secret key shhhhhhhhhhhhhhhhh!!!!!"
 // Controller function to handle token creation
 async function createToken(req, res) {
     try {
+        if (!(req.body.hasOwnProperty('username') &&
+        req.body.hasOwnProperty('password'))) {
+        return res.status(400).json({ title: 'One or more validation errors occurred.' });
+      }
         const { username, password } = req.body;
+        if (!(typeof username === 'string' &&
+        typeof password === 'string')) {
+        return res.status(400).json({ title: 'One or more validation errors occurred.' });
+      }
         const user = await User.findOne({ username: username, password: password });
         if (!user) {
-            return res.status(404).json({ error: 'username or password invalid' });
+            return res.status(404).send('username or password invalid');
         }
         const data = { username: username, password: password }
         // Generate the token.
         const token = jwt.sign(data, key)
         return res.status(200).json(token);
     } catch (error) {
-        return res.status(500).json({ error: 'Failed to create token' });
+        return res.status(500).send('Failed to create token' );
     }
 }
 

@@ -120,7 +120,7 @@ function Chats({ username, displayName, picture, token }) {
   }
 
   useEffect(() => {
-    const socket = io('http://localhost:5001')
+    const socket = io('http://localhost:5000')
     socket.on('connect', () => {
       console.log('Connected to socket server');
       socket.emit('username', username);
