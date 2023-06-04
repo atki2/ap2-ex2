@@ -5,7 +5,19 @@ const User = require('../models/userModel');
 // Controller function to handle user creation
 async function createUser(req, res) {
   try {
+    if (!(req.body.hasOwnProperty('username') &&
+      req.body.hasOwnProperty('password') &&
+      req.body.hasOwnProperty('displayName') &&
+      req.body.hasOwnProperty('profilePic'))) {
+      return res.status(400).json({ title: 'One or more validation errors occurred.' });
+    }
     const { username, password, displayName, profilePic } = req.body;
+    if (!(typeof username === 'string' &&
+      typeof password === 'string' &&
+      typeof displayName === 'string' &&
+      typeof profilePic === 'string')) {
+      return res.status(400).json({ title: 'One or more validation errors occurred.' });
+    }
     const user = await User.findOne({ username: username });
     if (user) {
       return res.status(409).json({ error: 'user already exists' });
@@ -20,7 +32,13 @@ async function createUser(req, res) {
 // Controller function to get a single user by username
 async function getUserByUsername(req, res) {
   try {
+    if (!(req.params.hasOwnProperty('username'))) {
+      return res.status(400).json({ title: 'One or more validation errors occurred.' });
+    }
     const { username } = req.params;
+    if (!(typeof username === 'string')) {
+    return res.status(400).json({ title: 'One or more validation errors occurred.' });
+  }
     if (req.headers.authorization) {
       // Extract the token from that header
       const userOfTheToken = verifyToken(req)
@@ -31,15 +49,15 @@ async function getUserByUsername(req, res) {
         return res.status(401).send('unauthorized')
     }
     else
-      return res.status(401).send('Token required');
+      return res.status(401).send('unauthorized');
     const user = await User.findOne({ username: username });
     if (!user) {
-      return res.status(404).json({ error: 'User not found' });
+      return res.status(404).send('User not found');
     }
     const jsonUser = { username: user.username, displayName: user.displayName, profilePic: user.profilePic }
     return res.status(200).json(jsonUser);
   } catch (error) {
-    return res.status(500).json({ error: 'Failed to retrieve user' });
+    return res.status(500).send('Failed to retrieve user');
   }
 }
 

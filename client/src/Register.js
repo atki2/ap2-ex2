@@ -72,7 +72,7 @@ function Register() {
   const handleConfirmPassword = function () {
     const password = document.getElementById('password').value;
     const confirmPassword = document.getElementById('confirmPassword').value;
-    return (confirmPassword == password)
+    return (confirmPassword === password)
   }
 
   const handleDisplay = function () {
@@ -111,10 +111,13 @@ function Register() {
       myAlert("Invalid display name\ndisplay name must have at least one english letter");
       return;
     }
-
     if (profilePhoto.files.length <= 0) {
       myAlert("select profile photo")
       return
+    }
+    if(displayName.value.length > 15) {
+      myAlert("display name must have a maximum of 15 charecters");
+      return;
     }
     const reader = new FileReader();
     reader.onload = async function (event) {
